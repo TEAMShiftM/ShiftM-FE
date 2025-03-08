@@ -18,11 +18,7 @@ import Navbar from "./components/nav";
 
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-
-
     <BrowserRouter>
       <Navbar /> {/* Add Navbar outside of Routes */}
       <Routes>
