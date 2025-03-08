@@ -1,0 +1,41 @@
+.find-pw {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.findpw-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 594px;
+    height: 530px;
+    border-radius: 15px;
+    background-color: white;
+}
+
+.find-pw h1 {
+    font-size: 38px;
+    color: #000000B2;
+    font-weight: 700;
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+.findpw-form {
+    gap: 30px;
+}
+
+.findpw-form button {
+    font-size: 20px;
+    color: #000000;
+    opacity: 0.7;
+    border: none;
+    background-color: transparent;
+}
+
+.findpw-form .pw {
+    margin-top: 15px;
+}

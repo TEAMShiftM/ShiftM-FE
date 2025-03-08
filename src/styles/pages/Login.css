@@ -1,0 +1,68 @@
+.login-title {
+    text-align: center;
+    margin-top: 150px;
+    font-size: 38px;
+    font-weight: 700;
+    color: #000000B2;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    width: 594px;
+    margin: 50px auto;
+    border-radius: 15px;
+    background-color: white;
+    padding: 100px 0;
+    align-items: center;
+}
+
+.login-inputs {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 30px;
+    align-content: center;
+    align-items: center;
+}
+
+.remember {
+    display: flex;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    align-self: flex-start;
+    margin-left: 50px;
+}
+
+.login-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    align-items: center;
+}
+
+.find {
+    display: flex;
+    justify-content: center;
+    gap: 49px;
+    align-items: center;
+    flex-direction: row;
+    width: 300px;
+    margin: 0 auto;
+    white-space: nowrap;
+    padding-left: 8px;
+}
+
+.find button {
+    font-size: 20px;
+    background-color: white;
+    border: none;
+    color: #000000B2;
+}
+
+.find p {
+    font-size: 35px;
+    color: #0075FFB2;
+    font-weight: 100;
+}
