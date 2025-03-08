@@ -1,0 +1,15 @@
+input::placeholder {
+  left: 15px;
+  color: #0075FFB2;
+}
+
+input {
+  box-sizing: border-box;
+  text-indent: 0;
+  padding-left: 15px;
+  color: black;
+}
+
+input:focus {
+  padding-left: 15px;
+}

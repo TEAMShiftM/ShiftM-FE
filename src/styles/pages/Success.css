@@ -1,0 +1,24 @@
+.complete {
+     
+    color: #000000B2;
+  }
+  
+
+.complete-container {
+    margin-top: 236px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center; 
+    text-align: center;
+}
+
+.complete-container img {
+    width: 317px;
+    margin-bottom: 16px;
+}
+
+.complete-container span {
+    font-size: 28px;
+    margin-bottom: 203px;
+}
