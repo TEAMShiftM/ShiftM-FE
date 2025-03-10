@@ -1,8 +1,8 @@
 import axios from "axios";
-import { tokenStorage } from "../utils/token";
+import { tokenStorage } from "../../utils/token";
 
 const instance = axios.create({
-  baseURL: "/shift",
+  baseURL: "http://10.10.9.52:30172/leave-request",
   headers: {
     "Content-Type": "application/json",
   },
@@ -52,61 +52,48 @@ const handleError = (error) => {
   };
 };
 
-export const ShiftAPI = {
+export const LeaveAPI = {
   /**
-   * 근무기록조회
+   * 연차 신청
    * @param {string} memberId
-   * @param {string} startDate
-   * @param {string} endDate
-   * @returns {Promise <{shifts: {id: number, checkinTime: string, checkoutTime: stirng}[] }>}
+   * @returns {Promise<{ isuccess: boolean, code: string, message: string } | any>}
    */
-  Shifts: async (memberId, startDate, endDate) => {
+  requestLeave: async (memberId) => {
     try {
-      const response = await instance.get("/", {
-        params: { memberId, startDate, endDate },
+      const response = await instance.post("/", { memberId });
+      return response.data;
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  /**
+   * 연차 신청 기록 조회
+   * @param {string} memberId
+   * @param {number} page
+   * @param {number} size
+   * @returns {Promise<{ isuccess: boolean, code: string, message: string } | any>}
+   */
+  requestLeaveList: async (memberId) => {
+    try {
+      const response = await instance.get("/", { memberId });
+      return response.data;
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  /**
+   * 연차 신청 취소
+   * @param {string} memberId
+   * @param {number} leaveRequestId
+   * @returns {Promise<{ isuccess: boolean, code: string, message: string } | any>}
+   */
+  requestCancelLeave: async (memberId, leaveRequestId) => {
+    try {
+      const response = await instance.patch("/", {
+        params: { memberId, leaveRequestId },
       });
-      return response.data;
-    } catch (error) {
-      return handleError(error);
-    }
-  },
-
-  /**
-   * 출근 기록
-   * @param {string} memberId
-   * @returns {Promise <any>}
-   */
-  CheckIn: async (memberId) => {
-    try {
-      const response = await instance.post("/check-in", { memberId });
-      return response.data;
-    } catch (error) {
-      return handleError(error);
-    }
-  },
-
-  /**
-   * 퇴근 기록
-   * @param {string} memberId
-   * @returns {Promise <any>}
-   */
-  Checkout: async (memberId) => {
-    try {
-      const response = await instance.patch("/check-out", { memberId });
-      return response.data;
-    } catch (error) {
-      return handleError(error);
-    }
-  },
-
-  /**
-   * 사후 출근 기록
-   * @param {string} memberId
-   * @returns {Promise <any>}
-   */
-  AfterCheckIn: async (memberId) => {
-    try {
-      const response = await instance.post("/after-checkin", { memberId });
       return response.data;
     } catch (error) {
       return handleError(error);

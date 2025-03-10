@@ -28,9 +28,12 @@ const Label = styled.label`
   margin-bottom: 11px;
   font-weight: 500;
   margin-top: 50px;
+  width: 494px;
+  margin-left: -40px;
 `;
 
 const Input = styled.input`
+  display: flex;
   width: 494px;
   height: 60px;
   border: 1px solid #0075ff;
@@ -52,10 +55,45 @@ const Button = styled.button`
   margin-top: 10px;
 `;
 
+const Button2 = styled.button`
+  width: 494px;
+  height: 60px;
+  border-radius: 10px;
+  font-size: 20px;
+  background-color: #0075ff;
+  color: ${({ primary }) => (primary ? "#2563eb" : "#ffffff")};
+  border: 1px solid #0075ff;
+  cursor: pointer;
+  margin-top: 10px;
+`;
+
+const Input2 = styled.input`
+  width: 494px;
+  height: 60px;
+  border-radius: 10px;
+  font-size: 20px;
+  background-color: #ffffff;
+  color: ${({ primary }) => (primary ? "#ffffff" : "#2563eb")};
+  border: 1px solid #0075ff;
+  cursor: pointer;
+  margin-top: 10px;
+`;
+
 const RadioGroup = styled.div`
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-left: -35px;
+`;
+
+const Button3 = styled.button`
+  width: 494px;
+  height: 60px;
+  text-align: left;
+  font-size: 20px;
+  font-weight: 500;
+  border: none;
+  background-color: #eff6ff;
+  cursor: pointer;
+  margin-top: 85px;
 `;
 
 const MyPage = () => {
@@ -67,6 +105,9 @@ const MyPage = () => {
     birthdate: "2000-01-01",
     gender: "male",
   });
+
+  const [showPasswordChange, setShowPasswordChange] = useState(false);
+  const [showEmailChange, setShowEmailChange] = useState(false);
 
   const handleChange = (e) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
@@ -84,6 +125,14 @@ const MyPage = () => {
       .replace(/ /g, "");
   };
 
+  const handlePasswordChangeToggle = () => {
+    setShowPasswordChange(!showPasswordChange);
+  };
+
+  const handleEmailChangeToggle = () => {
+    setShowEmailChange(!showEmailChange);
+  };
+
   return (
     <Container>
       <Card>
@@ -92,23 +141,84 @@ const MyPage = () => {
           <Label>아이디 *</Label>
           <Input type="text" name="username" value={profile.username} />
 
-          <Label>비밀번호 *</Label>
-          <Input
-            type="password"
-            name="password"
-            value={profile.password}
-            onChange={handleChange}
-          />
-          <Button>비밀번호 변경</Button>
+          {showPasswordChange ? (
+            <>
+              <Label>현재 비밀번호 *</Label>
+              <Input2
+                type="password"
+                name="currentPassword"
+                placeholder="현재 비밀번호를 입력해주세요"
+                onChange={handleChange}
+              />
 
-          <Label>이메일 *</Label>
-          <Input
-            type="email"
-            name="email"
-            value={profile.email}
-            onChange={handleChange}
-          />
-          <Button>이메일 변경</Button>
+              <Label>새 비밀번호 *</Label>
+              <Input2
+                type="password"
+                name="newPassword"
+                placeholder="새 비밀번호를 입력해주세요"
+                value={profile.newPassword}
+                onChange={handleChange}
+              />
+
+              <Label>새 비밀번호 확인 *</Label>
+              <Input2
+                type="password"
+                name="confirmNewPassword"
+                placeholder="새 비밀번호를 다시 입력해주세요"
+                value={profile.confirmNewPassword}
+                onChange={handleChange}
+              />
+              <Button2 onClick={handlePasswordChangeToggle}>
+                비밀번호 변경
+              </Button2>
+            </>
+          ) : (
+            <>
+              <Label>비밀번호 *</Label>
+              <Input
+                type="password"
+                name="password"
+                value={profile.password}
+                onChange={handleChange}
+              />
+              <Button onClick={handlePasswordChangeToggle}>
+                비밀번호 변경
+              </Button>
+            </>
+          )}
+
+          {showEmailChange ? (
+            <>
+              <Label>이메일 *</Label>
+              <Input
+                type="email"
+                name="email"
+                value={profile.email}
+                onChange={handleChange}
+              />
+              <Button>이메일 변경</Button>
+
+              <Label>인증번호 *</Label>
+              <Input
+                type="code"
+                name="code"
+                value={profile.code}
+                onChange={handleChange}
+              />
+              <Button2 onClick={handleEmailChangeToggle}>확인</Button2>
+            </>
+          ) : (
+            <>
+              <Label>이메일 *</Label>
+              <Input
+                type="email"
+                name="email"
+                value={profile.email}
+                onChange={handleChange}
+              />
+              <Button onClick={handleEmailChangeToggle}>이메일 변경</Button>
+            </>
+          )}
 
           <Label>이름 *</Label>
           <Input
@@ -149,8 +259,9 @@ const MyPage = () => {
               여성
             </label>
           </RadioGroup>
+          <Button3>탈퇴하기</Button3>
 
-          <Button primary>완료</Button>
+          <Button2>완료</Button2>
         </form>
       </Card>
     </Container>

@@ -1,8 +1,8 @@
 import axios from "axios";
-import { tokenStorage } from "../utils/token";
+import { tokenStorage } from "../../utils/token";
 
 const instance = axios.create({
-  baseURL: "/member",
+  baseURL: "http://10.10.9.52:30172/member",
   headers: {
     "Content-Type": "application/json",
   },

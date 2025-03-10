@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import { ShiftAPI } from "../api/user/shift";
 
 const Container = styled.div`
   background-color: #f7faff;
@@ -20,6 +21,7 @@ const Header = styled.div`
   margin-left: 160px;
   margin-right: 130px;
   width: 1116px;
+  font-weight: 500;
 `;
 
 const DateContainer = styled.div`
@@ -32,18 +34,14 @@ const Name = styled.div`
   font-size: 30px;
   margin-top: 40px;
   margin-left: 71px;
+  font-weight: 700;
 `;
 
 const Bar = styled.div`
   color: black;
   font-size: 30px;
   margin-left: 71px;
-`;
-
-const Time = styled.div`
-  color: black;
-  font-size: 20x;
-  margin-left: 24px;
+  margin-right: 24px;
 `;
 
 const TimeBox = styled.div`
@@ -52,6 +50,8 @@ const TimeBox = styled.div`
   justify-content: flex-start;
   align-items: center;
   margin-top: 15px;
+  font-weight: 500;
+  font-size: 20px;
 `;
 
 const Button = styled.button`
@@ -65,6 +65,7 @@ const Button = styled.button`
   height: 50px;
   margin-right: 25px;
   font-size: 20px;
+  font-weight: 500;
 `;
 
 const Card = styled.div`
@@ -98,6 +99,7 @@ const WorkButton = styled.button`
   align-items: center;
   margin-top: 66px;
   margin-left: 71px;
+  font-weight: 500;
 `;
 
 const ModalOverlay = styled.div`
@@ -166,6 +168,7 @@ const DayCard = styled.div`
     props.active ? "rgba(0, 117, 255, 0.3)" : "rgba(0, 117, 255, 0.1)"};
   border-radius: 20px;
   font-size: 24px;
+  font-weight: 500;
   text-align: center;
   margin-top: 30px;
   display: flex;
@@ -187,13 +190,23 @@ const LongBar = styled.div`
   width: 924px;
   height: 24px;
   background: rgba(0, 117, 255, 0.1);
-  margin: 20px auto 0;
 `;
 
 const DayCardContainer = styled.div`
   display: flex;
-  justify-content: space-between;
-  width: 100%;
+  width: 964px;
+  margin-bottom: 65px;
+`;
+
+const Card2 = styled.div`
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  width: 1120px;
+  height: 400px;
+  margin-left: 162px;
 `;
 
 const getTodayDate = () => {
@@ -225,13 +238,72 @@ const loadNaverMap = () => {
   });
 };
 
+const getWeekDates = () => {
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 현재 요일 (0: 일요일, 1: 월요일, ..., 6: 토요일)
+
+  const startDate = new Date(today);
+  startDate.setDate(today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)); // 이번 주 월요일
+
+  const endDate = new Date(startDate);
+  endDate.setDate(startDate.getDate() + 6); // 이번 주 일요일
+
+  const formatDate = (date) => {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}-${String(date.getDate()).padStart(2, "0")}`;
+  };
+
+  return {
+    startDate: formatDate(startDate),
+    endDate: formatDate(endDate),
+  };
+};
+
 const Main = () => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [todayShift, setTodayShift] = useState(null);
+  const [weekShifts, setWeekShifts] = useState([]);
+  const [isWorking, setIsWorking] = useState(false);
+  const [memberId, setMemberId] = useState(null);
 
-  const handleWorkButtonClick = async () => {
+  const handleMapClick = async () => {
     await loadNaverMap();
     setIsModalOpen(true);
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude, longitude } = position.coords;
+        const mapOptions = {
+          center: new window.naver.maps.LatLng(latitude, longitude),
+          zoom: 15,
+        };
+        const map = new window.naver.maps.Map("map", mapOptions);
+        new window.naver.maps.Marker({
+          position: new window.naver.maps.LatLng(latitude, longitude),
+          map: map,
+        });
+      });
+    }
+  };
+
+  // memberId 없이 요청
+  const handleWorkButtonClick = async () => {
+    try {
+      if (isWorking) {
+        await ShiftAPI.CheckOut();
+        setIsWorking(false);
+      } else {
+        await ShiftAPI.CheckIn();
+        setIsWorking(true);
+      }
+
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Error updating shift:", error);
+    }
   };
 
   useEffect(() => {
@@ -243,6 +315,27 @@ const Main = () => {
       new window.naver.maps.Map("map", mapOptions);
     }
   }, [isModalOpen]);
+
+  useEffect(() => {
+    const fetchShifts = async () => {
+      try {
+        const todayDate = getTodayDate();
+        const { startDate, endDate } = getWeekDates();
+
+        // 오늘 근무 일정 가져오기
+        const todayData = await ShiftAPI.Shifts(memberId, todayDate, todayDate);
+        setTodayShift(todayData.shifts[0]); // 오늘의 근무 정보가 첫 번째로 있다고 가정
+
+        // 이번 주 근무 일정 가져오기
+        const weekData = await ShiftAPI.Shifts(memberId, startDate, endDate);
+        setWeekShifts(weekData.shifts);
+      } catch (error) {
+        console.error("근무 일정 불러오기 실패:", error);
+      }
+    };
+
+    fetchShifts();
+  }, []);
 
   return (
     <Container>
@@ -262,23 +355,32 @@ const Main = () => {
         <Name>오늘 근무</Name>
         <TimeBox>
           <Bar>|</Bar>
-          <Time>9:00 - 18:00 | 본사</Time>
+          {todayShift ? (
+            <div>
+              {todayShift.checkinTime} - {todayShift.checkoutTime} |{" "}
+              {todayShift.location}
+            </div>
+          ) : (
+            <div>근무 일정 없음</div>
+          )}
         </TimeBox>
-        <WorkButton onClick={handleWorkButtonClick}>출근</WorkButton>
+        <WorkButton onClick={handleMapClick}>
+          {isWorking ? "퇴근" : "출근"}
+        </WorkButton>
       </Card>
 
       {isModalOpen && (
         <ModalOverlay>
           <ModalContent>
             <Map id="map"></Map>
-            <ModalButton onClick={() => setIsModalOpen(false)}>
-              출근
+            <ModalButton onClick={handleWorkButtonClick}>
+              {isWorking ? "퇴근" : "출근"}
             </ModalButton>
           </ModalContent>
         </ModalOverlay>
       )}
 
-      <Card>
+      <Card2>
         <Name>이번주 근무</Name>
         <ScheduleContainer>
           <DayCardContainer>
@@ -290,14 +392,21 @@ const Main = () => {
               >
                 <Weekend>{day}</Weekend>
                 <WorkingTime>
-                  {index === 0 || index === 6 ? "일정 없음" : "09:00 18:00"}
+                  {index === 0 || index === 6
+                    ? "일정 없음"
+                    : todayShift &&
+                      todayShift.checkinTime &&
+                      todayShift.checkoutTime
+                    ? `${todayShift.checkinTime} - ${todayShift.checkoutTime}`
+                    : "일정 없음"}{" "}
                 </WorkingTime>
               </DayCard>
             ))}
           </DayCardContainer>
+
           <LongBar />
         </ScheduleContainer>
-      </Card>
+      </Card2>
     </Container>
   );
 };
