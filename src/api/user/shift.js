@@ -54,7 +54,7 @@ const handleError = (error) => {
 
 export const ShiftAPI = {
   /**
-   * 근무기록조회
+   * 근무기록조회 //날짜로
    * @param {string} memberId
    * @param {string} startDate
    * @param {string} endDate
@@ -74,11 +74,18 @@ export const ShiftAPI = {
   /**
    * 출근 기록
    * @param {string} memberId
+   * @param {number} latitude
+   * @param {number} longitude
    * @returns {Promise <any>}
    */
-  CheckIn: async (memberId) => {
+  CheckIn: async (memberId, latitude, longitude) => {
     try {
-      const response = await instance.post("/check-in", { memberId });
+      const response = await instance.post("/check-in", {
+        memberId,
+        checkinTime: new Date().toISOString(),
+        latitude,
+        longitude,
+      });
       return response.data;
     } catch (error) {
       return handleError(error);
@@ -93,20 +100,6 @@ export const ShiftAPI = {
   Checkout: async (memberId) => {
     try {
       const response = await instance.patch("/check-out", { memberId });
-      return response.data;
-    } catch (error) {
-      return handleError(error);
-    }
-  },
-
-  /**
-   * 사후 출근 기록
-   * @param {string} memberId
-   * @returns {Promise <any>}
-   */
-  AfterCheckIn: async (memberId) => {
-    try {
-      const response = await instance.post("/after-checkin", { memberId });
       return response.data;
     } catch (error) {
       return handleError(error);
