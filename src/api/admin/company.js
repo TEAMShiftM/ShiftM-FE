@@ -52,7 +52,7 @@ const handleError = (error) => {
   };
 };
 
-export const CompanyAPI = {
+export const AdminCompanyAPI = {
   // 회사 정보 등록
   Company: async () => {
     try {

@@ -36,9 +36,12 @@ const Input = styled.input`
   font-size: 20px;
   border: 1px solid #0075ff;
   border-radius: 12px;
-  color: #0075ff;
+  color: black; /* 입력 시 검정색 */
   text-align: flex-start;
   margin-bottom: 50px;
+  ::placeholder {
+    color: #0075ff; /* 플레이스홀더 색상 유지 */
+  }
 `;
 
 const PeriodContainer = styled.div`
@@ -56,8 +59,11 @@ const SmallInput = styled.input`
   border-radius: 12px;
   font-size: 20px;
   text-align: left;
-  color: #0075ff;
+  color: black; /* 입력 시 검정색 */
   margin-bottom: 50px;
+  ::placeholder {
+    color: #0075ff; /* 플레이스홀더 색상 유지 */
+  }
 `;
 
 const SubmitButton = styled.button`
@@ -106,14 +112,15 @@ const CreateCompany = () => {
         totalDays += Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       }
     });
-
   };
 
   return (
     <Container>
       <Title>회사 프로필</Title>
       <FormGroup>
-        <Label>회사 번호 <span style={{ color: "#0075FFB2" }}>*</span></Label>
+        <Label>
+          회사 번호 <span style={{ color: "#0075FFB2" }}>*</span>
+        </Label>
         <Input
           type="number"
           placeholder="회사 번호를 입력해주세요"
@@ -123,24 +130,20 @@ const CreateCompany = () => {
       </FormGroup>
 
       <FormGroup>
-        <Label>근무 시간 <span style={{ color: "#0075FFB2" }}>*</span></Label>
+        <Label>
+          근무 시간 <span style={{ color: "#0075FFB2" }}>*</span>
+        </Label>
         {leaveWorks.map((work, index) => (
           <PeriodContainer key={index}>
             <SmallInput
-              type={inputType}
+              type="time" // 항상 24시간 형식 유지
               value={work.start}
-              onFocus={() => setInputType("time")}
-              onBlur={() => !work.start && setInputType("time")}
               placeholder="출근 시간"
-              onChange={(e) =>
-                handleWorkChange(index, "start", e.target.value)
-              }
+              onChange={(e) => handleWorkChange(index, "start", e.target.value)}
             />
             <SmallInput
-              type={inputType}
+              type="time" // 항상 24시간 형식 유지
               value={work.end}
-              onFocus={() => setInputType("time")}
-              onBlur={() => !work.end && setInputType("time")}
               placeholder="퇴근 시간"
               onChange={(e) => handleWorkChange(index, "end", e.target.value)}
             />
@@ -148,7 +151,9 @@ const CreateCompany = () => {
         ))}
       </FormGroup>
       <FormGroup>
-        <Label>휴게 시간 <span style={{ color: "#0075FFB2" }}>*</span></Label>
+        <Label>
+          휴게 시간 <span style={{ color: "#0075FFB2" }}>*</span>
+        </Label>
         {leaveBreaks.map((breakTime, index) => (
           <PeriodContainer key={index}>
             <SmallInput
