@@ -1,0 +1,73 @@
+.info-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #000000B2;
+}
+
+.info-title {
+    font-size: 38px;
+    font-weight: 700;
+    margin-top: 150px;
+}
+
+.info-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.info-input {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-items: center;
+    gap: 26px;
+}
+
+.info-label {
+    font-size: 20px;
+    width: 124px;
+    white-space: nowrap;
+    margin-right: 21px;
+}
+
+.info-input-field {
+    font-size: 20px;
+}
+
+.info-button {
+    width: 100%;
+    justify-content: flex-end;
+}
+
+.info-buttons {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-top: 100px;
+    margin-bottom: 100px;
+}
+
+.info-birth {
+    display: flex;
+    gap: 52px;
+}
+
+.radio {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 137px;
+    padding-left: 98px;
+
+}
+
+.info-container .bar {
+    margin-top: 27px;
+    margin-bottom: 100px;
+}

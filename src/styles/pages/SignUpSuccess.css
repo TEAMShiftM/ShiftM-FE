@@ -1,0 +1,36 @@
+.success-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center; 
+
+    text-align: center; 
+    color: #000000B2;
+  }
+  
+  .success {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    gap: 27px;
+  }
+  
+  .title {
+    font-size: 38px;
+    font-weight: 700;
+    margin-top: 150px;
+  }
+
+  .logo {
+    margin-top: 185px;
+    margin-bottom: 16px;
+  }
+
+  .success span {
+    font-size: 28px;
+  }
+
+.login-button {
+  margin-top: 240px;
+}
+

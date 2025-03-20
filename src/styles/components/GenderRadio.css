@@ -1,0 +1,25 @@
+.radio-container {
+  display: flex;
+  align-items: center;
+  }
+  
+.custom-radio {
+  width: 20px; 
+  height: 20px;
+  appearance: none;
+  border: 1px solid #0075FF;
+  border-radius: 50%;
+  cursor: pointer;
+  }
+  
+
+.custom-radio:checked {
+  background-color: #0075FF;
+  }
+  
+.radio-label {
+  font-size: 20px; 
+  cursor: pointer;
+  padding-left: 25px;
+  }
+  
