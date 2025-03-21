@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styled from "styled-components";
+import { LeaveTypeAPI } from "../../api/admin/leave-type";
 
 const Container = styled.div`
   background-color: #f7faff;
@@ -55,6 +56,21 @@ const SubmitButton = styled.button`
 `;
 
 const CreateLeaveType = () => {
+  const [name, setName] = useState("");
+
+  const handleSubmit = async () => {
+    if (!name) {
+      alert("연차 유형 이름을 입력해주세요.");
+      return;
+    }
+    const res = await LeaveTypeAPI.createLeaveType(name);
+    if (res.isSuccess === false) {
+      alert(res.message);
+    } else {
+      alert("연차 유형이 생성되었습니다.");
+    }
+  };
+
   return (
     <Container>
       <Title>연차 유형</Title>
@@ -63,9 +79,11 @@ const CreateLeaveType = () => {
         <Input
           placeholder="연차 유형 이름을 입력해주세요"
           type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
         />
         </FormGroup>
-      <SubmitButton>완료</SubmitButton>
+      <SubmitButton onClick={handleSubmit}>완료</SubmitButton>
     </Container>
   );
 };
