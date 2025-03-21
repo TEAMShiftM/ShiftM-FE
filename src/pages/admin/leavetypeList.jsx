@@ -1,24 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { LeaveTypeAPI } from "../../api/admin/leave-type";
 
-// 연차 유형 데이터
-const leaveData = [
-  {
-    id: 1,
-    name: "연차 휴가",
-  },
-  {
-    id: 2,
-    name: "출산 휴가",
-  },
-  {
-    id: 3,
-    name: "특별 휴가",
-  },
+const initialLeaveData = [
+  { id: 1, name: "연차 휴가" },
+  { id: 2, name: "출산 휴가" },
+  { id: 3, name: "특별 휴가" },
 ];
 
-// Styled Components
 const Container = styled.div`
   background-color: #f0f8ff;
   width: 100vw;
@@ -136,61 +126,51 @@ const SearchInput = styled.input`
   font-size: 1rem;
 `;
 
-// CheckVacation 컴포넌트
 export default function LeaveTypeList() {
-  const [selectedFilters, setSelectedFilters] = useState([]);
+  const [leaveData, setLeaveData] = useState(initialLeaveData);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 7; // 한 페이지에 표시할 데이터 개수
+  const itemsPerPage = 7;
+  const navigate = useNavigate();
 
-  const filteredLeaveData = leaveData.filter((leave) =>
-    selectedFilters.length ? selectedFilters.includes(leave.status) : true
-  );
+  useEffect(() => {
+    const fetchLeaveTypes = async () => {
+      const res = await LeaveTypeAPI.leaveTypes();
+      if (res.typeList) {
+        setLeaveData((prev) => [...prev, ...res.typeList.filter(newItem => !prev.some(prevItem => prevItem.id === newItem.id))]);
+      }
+    };
+    fetchLeaveTypes();
+  }, []);
 
+  const handleDelete = async (id) => {
+    const confirmed = window.confirm("정말 삭제하시겠습니까?");
+    if (!confirmed) return;
+
+    const res = await LeaveTypeAPI.deleteType(id);
+    if (res.isSuccess === false) {
+      alert(res.message);
+    } else {
+      alert("삭제되었습니다.");
+      setLeaveData((prev) => prev.filter((item) => item.id !== id));
+    }
+  };
+
+  const filteredLeaveData = leaveData;
   const paginatedData = filteredLeaveData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-
   const totalPages = Math.ceil(filteredLeaveData.length / itemsPerPage);
 
-  const Pagination = ({ totalPages, currentPage, onPageChange }) => {
-    const handlePageClick = (pageNumber) => {
-      if (pageNumber >= 1 && pageNumber <= totalPages) {
-        onPageChange(pageNumber);
-      }
-    };
-
-    return (
-      <div>
-        <Button
-          variant="link"
-          onClick={() => handlePageClick(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          이전
-        </Button>
-        <span>
-          {currentPage} / {totalPages}
-        </span>
-        <Button
-          variant="link"
-          onClick={() => handlePageClick(currentPage + 1)}
-          disabled={currentPage === totalPages}
-        >
-          다음
-        </Button>
-      </div>
-    );
+  const handlePageClick = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
   };
 
-  // 검색바 컴포넌트  
   const SearchBar = ({ onSearch }) => {
     const [query, setQuery] = useState("");
-
-    const handleChange = () => {
-      setQuery(e.target.value)
-    };
-
+    const handleChange = (e) => setQuery(e.target.value);
     const handleSubmit = (e) => {
       e.preventDefault();
       onSearch(query);
@@ -209,9 +189,6 @@ export default function LeaveTypeList() {
       </SearchContainer>
     );
   };
-
-  const navigate = useNavigate();
-
 
   return (
     <Container>
@@ -232,15 +209,17 @@ export default function LeaveTypeList() {
               <TableCell>{leave.id}</TableCell>
               <TableCell>{leave.name}</TableCell>
               <TableCell>
-                {leave.name !== "연차 휴가" && leave.name !== "출산 휴가" &&(
-                  <Button variant="link" onClick={() => navigate('/edit-leave-type/$(leave.id)')}>
+                {leave.name !== "연차 휴가" && leave.name !== "출산 휴가" && (
+                  <Button variant="link" onClick={() => navigate(`/edit-leave-type/${leave.id}`)}>
                     수정
                   </Button>
                 )}
               </TableCell>
               <TableCell>
-                {leave.name !== "연차 휴가" && leave.name !== "출산 휴가" &&(
-                  <Button variant="link">삭제</Button>
+                {leave.name !== "연차 휴가" && leave.name !== "출산 휴가" && (
+                  <Button variant="link" onClick={() => handleDelete(leave.id)}>
+                    삭제
+                  </Button>
                 )}
               </TableCell>
             </TableRow>

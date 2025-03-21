@@ -55,11 +55,18 @@ const handleError = (error) => {
 
 
   
-export const AuthAPI = {
+export const SignAPI = {
 /**
  * 회원가입
- * @param {Object} userData
- * @returns {Promise<any>}
+ * @param {Object} userData 
+ * @param {string} userData.id 
+ * @param {string} userData.password 
+ * @param {string} userData.companyId 
+ * @param {string} userData.email 
+ * @param {string} userData.name 
+ * @param {string} userData.birthDate 
+ * @param {string} userData.gender 
+ * @returns {Promise<any>} 
  */
  Signup: async (userData) => {
     try {
@@ -77,10 +84,18 @@ export const AuthAPI = {
  */
 CheckId: async (id) => {
     try {
-        const response = await instance.get('/check/id?userId=${id}');
+        const response = await instance.get('/check/id', {
+            params: { id },
+        });
         return response.data.isVerified;
     }   catch (error) {
-        return handleError(error);
+        const handled = handleError(error);
+
+        if (handled.code === 'DUPLICATE_ID') {
+          handled.message = '이미 사용 중인 아이디입니다. 다른 아이디를 입력해주세요.';
+        }
+    
+        return handled;
     }
 },
 };
