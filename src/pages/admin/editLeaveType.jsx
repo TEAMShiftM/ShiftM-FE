@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
+import { LeaveTypeAPI } from "../../api/admin/leave-type";
 
 const Container = styled.div`
   background-color: #f7faff;
@@ -55,35 +56,41 @@ const SubmitButton = styled.button`
   margin-top: 30px;
 `;
 
-const leaveData = [
-  { id: 1, name: "연차 휴가" },
-  { id: 2, name: "출산 휴가" },
-  { id: 3, name: "특별 휴가" },
-]
-
 const EditLeaveType = () => {
   const { id } = useParams();
   const [leaveType, setLeaveType] = useState("");
 
   useEffect(() => {
-    const foundLeaveType = leaveData.find((leave) => leave.id === Number(id));
-    if (foundLeaveType) {
-      setLeaveType(foundLeaveType.name);
+   
+  }, [id]);
+
+  const handleSubmit = async () => {
+    if (!leaveType) {
+      alert("연차 유형 이름을 입력해주세요.");
+      return;
     }
-  }
-  , [id]);
+
+    const res = await LeaveTypeAPI.editType(id, leaveType);
+    if (res.isSuccess === false) {
+      alert(res.message);
+    } else {
+      alert("연차 유형이 수정되었습니다.");
+    }
+  };
 
   return (
     <Container>
       <Title>연차 유형</Title>
-        <FormGroup>
+      <FormGroup>
         <Label>이름 <span style={{ color: "#0075FFB2" }}>*</span></Label>
         <Input
           placeholder="특별 휴가"
           type="text"
+          value={leaveType}
+          onChange={(e) => setLeaveType(e.target.value)}
         />
-        </FormGroup>
-      <SubmitButton>완료</SubmitButton>
+      </FormGroup>
+      <SubmitButton onClick={handleSubmit}>완료</SubmitButton>
     </Container>
   );
 };
