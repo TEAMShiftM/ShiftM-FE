@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styled from "styled-components";
+import { AdminCompanyAPI } from "../../api/admin/company";
 
 const Container = styled.div`
   background-color: #f7faff;
@@ -36,11 +37,11 @@ const Input = styled.input`
   font-size: 20px;
   border: 1px solid #0075ff;
   border-radius: 12px;
-  color: black; /* 입력 시 검정색 */
+  color: black;
   text-align: flex-start;
   margin-bottom: 50px;
   ::placeholder {
-    color: #0075ff; /* 플레이스홀더 색상 유지 */
+    color: #0075ff;
   }
 `;
 
@@ -59,10 +60,10 @@ const SmallInput = styled.input`
   border-radius: 12px;
   font-size: 20px;
   text-align: left;
-  color: black; /* 입력 시 검정색 */
+  color: black;
   margin-bottom: 50px;
   ::placeholder {
-    color: #0075ff; /* 플레이스홀더 색상 유지 */
+    color: #0075ff;
   }
 `;
 
@@ -84,11 +85,19 @@ const TotalDays = styled.div`
   margin-left: -430px;
 `;
 
+const StatusMessage = styled.div`
+  margin-top: 20px;
+  color: ${(props) => (props.isError ? "red" : "green")};
+  font-size: 16px;
+`;
+
 const CreateCompany = () => {
-  const [leaveType, setLeaveType] = useState("");
+  const [companyNumber, setCompanyNumber] = useState("");
   const [leaveWorks, setLeaveWorks] = useState([{ start: "", end: "" }]);
   const [leaveBreaks, setLeaveBreaks] = useState([{ start: "", end: "" }]);
-  const [inputType, setInputType] = useState("text");
+  const [inputType, setInputType] = useState("time");
+  const [status, setStatus] = useState({ message: "", isError: false });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleWorkChange = (index, field, value) => {
     const newWorks = [...leaveWorks];
@@ -102,16 +111,58 @@ const CreateCompany = () => {
     setLeaveBreaks(newBreaks);
   };
 
-  const calculateTotalDays = () => {
-    let totalDays = 0;
-    leavePeriods.forEach(({ start, end }) => {
-      if (start && end) {
-        const startDate = new Date(start);
-        const endDate = new Date(end);
-        const diffTime = Math.abs(endDate - startDate);
-        totalDays += Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      }
-    });
+  const handleSubmit = async () => {
+    // Form validation
+    if (!companyNumber) {
+      setStatus({ message: "회사 번호를 입력해주세요", isError: true });
+      return;
+    }
+
+    if (!leaveWorks[0].start || !leaveWorks[0].end) {
+      setStatus({ message: "근무 시간을 입력해주세요", isError: true });
+      return;
+    }
+
+    if (!leaveBreaks[0].start || !leaveBreaks[0].end) {
+      setStatus({ message: "휴게 시간을 입력해주세요", isError: true });
+      return;
+    }
+
+    // Prepare data for API
+    const companyData = {
+      companyNumber,
+      workHours: leaveWorks.map((work) => ({
+        start: work.start,
+        end: work.end,
+      })),
+      breakHours: leaveBreaks.map((breakTime) => ({
+        start: breakTime.start,
+        end: breakTime.end,
+      })),
+    };
+
+    setIsSubmitting(true);
+    setStatus({ message: "", isError: false });
+
+    try {
+      const response = await AdminCompanyAPI.Company(companyData);
+      setStatus({
+        message: "회사 정보가 성공적으로 등록되었습니다",
+        isError: false,
+      });
+      // Optional: Reset form after successful submission
+      // setCompanyNumber("");
+      // setLeaveWorks([{ start: "", end: "" }]);
+      // setLeaveBreaks([{ start: "", end: "" }]);
+    } catch (error) {
+      setStatus({
+        message:
+          error.message || "회사 정보 등록에 실패했습니다. 다시 시도해주세요",
+        isError: true,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -124,8 +175,8 @@ const CreateCompany = () => {
         <Input
           type="number"
           placeholder="회사 번호를 입력해주세요"
-          value={leaveType}
-          onChange={(e) => setLeaveType(e.target.value)}
+          value={companyNumber}
+          onChange={(e) => setCompanyNumber(e.target.value)}
         />
       </FormGroup>
 
@@ -136,13 +187,13 @@ const CreateCompany = () => {
         {leaveWorks.map((work, index) => (
           <PeriodContainer key={index}>
             <SmallInput
-              type="time" // 항상 24시간 형식 유지
+              type="time"
               value={work.start}
               placeholder="출근 시간"
               onChange={(e) => handleWorkChange(index, "start", e.target.value)}
             />
             <SmallInput
-              type="time" // 항상 24시간 형식 유지
+              type="time"
               value={work.end}
               placeholder="퇴근 시간"
               onChange={(e) => handleWorkChange(index, "end", e.target.value)}
@@ -157,27 +208,30 @@ const CreateCompany = () => {
         {leaveBreaks.map((breakTime, index) => (
           <PeriodContainer key={index}>
             <SmallInput
-              type={inputType}
+              type="time"
               value={breakTime.start}
-              onFocus={() => setInputType("time")}
-              onBlur={() => !breakTime.start && setInputType("time")}
               placeholder="시작 시간"
               onChange={(e) =>
                 handleBreakChange(index, "start", e.target.value)
               }
             />
             <SmallInput
-              type={inputType}
+              type="time"
               value={breakTime.end}
-              onFocus={() => setInputType("time")}
-              onBlur={() => !breakTime.end && setInputType("time")}
               placeholder="종료 시간"
               onChange={(e) => handleBreakChange(index, "end", e.target.value)}
             />
           </PeriodContainer>
         ))}
       </FormGroup>
-      <SubmitButton>완료</SubmitButton>
+
+      {status.message && (
+        <StatusMessage isError={status.isError}>{status.message}</StatusMessage>
+      )}
+
+      <SubmitButton onClick={handleSubmit} disabled={isSubmitting}>
+        {isSubmitting ? "처리 중..." : "완료"}
+      </SubmitButton>
     </Container>
   );
 };
