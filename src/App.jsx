@@ -31,6 +31,7 @@ import LeaveList from "./pages/admin/viewLeaveList";
 import EditLeave from "./pages/admin/editLeave";
 import LeaveRequestList from "./pages/admin/leaveRequestList";
 import AObjectionList from "./pages/admin/objectionList";
+import AdminMain from "./pages/admin/adminmain";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -68,6 +69,8 @@ function App() {
         <Route path="/edit-leave/:id" element={<EditLeave />} />{" "}
         <Route path="/leave-request-list" element={<LeaveRequestList />} />{" "}
         <Route path="/objection-list" element={<AObjectionList />} />{" "}
+        <Route path="/admin-main" element={<AdminMain />} />
+        {""}
       </Routes>{" "}
     </BrowserRouter>
   );

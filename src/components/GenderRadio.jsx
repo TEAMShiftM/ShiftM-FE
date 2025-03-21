@@ -1,7 +1,16 @@
 import React from "react";
 import "../styles/components/GenderRadio.css";
 
-const RadioButton = ({ id, name, value, label, checked, onChange, size = "20px", color = "#0075FF" }) => {
+const RadioButton = ({
+  id,
+  name,
+  value,
+  label,
+  checked,
+  onChange,
+  size = "20px",
+  color = "#0075FF",
+}) => {
   return (
     <div className="radio-container">
       <input
