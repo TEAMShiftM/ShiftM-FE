@@ -127,4 +127,33 @@ export const MemberAPI = {
       return handleError(error);
     }
   },
+
+  /**
+   * 아이디 찾기
+   * @param {string} email
+   * @returns {Promise <any>}
+   */
+  FindId: async (email) => {
+    try {
+      const response = await instance.get("/find/id", { email });
+      return response.data;
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+  
+  /**
+   * 비밀번호 찾기
+   * @param {string}id
+   * @param {string} email
+   * @returns {Promise <any>}
+   */
+  FindPassword: async (id, email) => {
+    try {
+      const response = await instance.get("/find/password", { id, email });
+      return response.data;
+    } catch (error) {
+      return handleError(error);
+    }
+  },
 };
