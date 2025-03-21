@@ -2,7 +2,7 @@ import axios from "axios";
 import { tokenStorage } from "../../utils/token";
 
 const instance = axios.create({
-  baseURL: "http://10.10.9.52:30172/shift",
+  baseURL: "http://10.10.9.52:30172/admin",
   headers: {
     "Content-Type": "application/json",
   },
@@ -52,54 +52,49 @@ const handleError = (error) => {
   };
 };
 
-export const ShiftAPI = {
-  /**
-   * 근무기록조회 //날짜로
-   * @param {string} memberId
-   * @param {string} startDate
-   * @param {string} endDate
-   * @returns {Promise <{shifts: {id: number, checkinTime: string, checkoutTime: stirng}[] }>}
-   */
-  Shifts: async (memberId, startDate, endDate) => {
+export const AdminLeaveAPI = {
+  // 연차 생성
+  CreateLeave: async () => {
     try {
-      const response = await instance.get("/", {
-        params: { memberId, startDate, endDate },
+      const response = await instance.post(`/leave`);
+      return response.data;
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+  // 연차 수정
+  EditLeave: async (leaveId) => {
+    try {
+      const response = await instance.patch(`/leave/${leaveId}`);
+      return response.data;
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+  // 전체 연차 현황 조회
+  ViewAllLeave: async (page, size) => {
+    try {
+      const response = await instance.get(`/leave`, {
+        params: {
+          page,
+          size,
+        },
       });
       return response.data;
     } catch (error) {
       return handleError(error);
     }
   },
-
-  /**
-   * 출근 기록
-   * @param {string} memberId
-   * @param {number} latitude
-   * @param {number} longitude
-   * @returns {Promise <any>}
-   */
-  CheckIn: async (memberId, latitude, longitude) => {
+  // 직원별 연차 현황 조회
+  ViewEmployeeLeave: async (page, size, memberId) => {
     try {
-      const response = await instance.post("/check-in", {
-        memberId,
-        checkinTime: new Date().toISOString(),
-        latitude,
-        longitude,
+      const response = await instance.patch(`/leave/${memberId}`, {
+        params: {
+          page,
+          size,
+          memberId,
+        },
       });
-      return response.data;
-    } catch (error) {
-      return handleError(error);
-    }
-  },
-
-  /**
-   * 퇴근 기록
-   * @param {string} memberId
-   * @returns {Promise <any>}
-   */
-  Checkout: async (memberId) => {
-    try {
-      const response = await instance.patch("/check-out", { memberId });
       return response.data;
     } catch (error) {
       return handleError(error);

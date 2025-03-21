@@ -2,7 +2,7 @@ import axios from "axios";
 import { tokenStorage } from "../../utils/token";
 
 const instance = axios.create({
-  baseURL: "http://10.10.9.52:30172/shift",
+  baseURL: "http://10.10.9.52:30172/admin",
   headers: {
     "Content-Type": "application/json",
   },
@@ -52,18 +52,17 @@ const handleError = (error) => {
   };
 };
 
-export const ShiftAPI = {
-  /**
-   * 근무기록조회 //날짜로
-   * @param {string} memberId
-   * @param {string} startDate
-   * @param {string} endDate
-   * @returns {Promise <{shifts: {id: number, checkinTime: string, checkoutTime: stirng}[] }>}
-   */
-  Shifts: async (memberId, startDate, endDate) => {
+export const AdminShiftAPI = {
+  // 전체 근무 기록 조회
+  ViewallShift: async (page = 1, size = 10, sort = "asc", name = "") => {
     try {
-      const response = await instance.get("/", {
-        params: { memberId, startDate, endDate },
+      const response = await instance.get(`/shift`, {
+        params: {
+          page,
+          size,
+          sort,
+          name,
+        },
       });
       return response.data;
     } catch (error) {
@@ -71,35 +70,58 @@ export const ShiftAPI = {
     }
   },
 
-  /**
-   * 출근 기록
-   * @param {string} memberId
-   * @param {number} latitude
-   * @param {number} longitude
-   * @returns {Promise <any>}
-   */
-  CheckIn: async (memberId, latitude, longitude) => {
+  // 사후 출근 신청 조회
+  ViewAfterCheckIn: async (page = 1, size = 10, sort = "asc", name = "") => {
     try {
-      const response = await instance.post("/check-in", {
-        memberId,
-        checkinTime: new Date().toISOString(),
-        latitude,
-        longitude,
+      const response = await instance.get(`/shift/after-checkin`, {
+        params: {
+          page,
+          size,
+          sort,
+          name,
+        },
       });
       return response.data;
     } catch (error) {
       return handleError(error);
     }
   },
-
-  /**
-   * 퇴근 기록
-   * @param {string} memberId
-   * @returns {Promise <any>}
-   */
-  Checkout: async (memberId) => {
+  // 출근 신청 상태 변경
+  ViewStatus: async (shiftId) => {
     try {
-      const response = await instance.patch("/check-out", { memberId });
+      const response = await instance.patch(
+        `/shift/${shiftId}/status`,
+        updateData
+      );
+      return response.data;
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+  // 근무 기록 수정 (PATCH 요청)
+  EditShift: async (shiftId, updateData) => {
+    try {
+      const response = await instance.patch(`/shift/${shiftId}`, updateData);
+      return response.data;
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  // 근무 기록 삭제 (DELETE 요청)
+  DeleteShift: async (shiftId) => {
+    try {
+      const response = await instance.delete(`/shift/${shiftId}`);
+      return response.data;
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  // 근무 기록 엑셀 파일 변환
+  Export: async () => {
+    try {
+      const response = await instance.get(`/shift/export`);
       return response.data;
     } catch (error) {
       return handleError(error);

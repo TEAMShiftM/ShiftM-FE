@@ -2,7 +2,7 @@ import axios from "axios";
 import { tokenStorage } from "../../utils/token";
 
 const instance = axios.create({
-  baseURL: "http://10.10.9.52:30172/shift",
+  baseURL: "http://10.10.9.52:30172/admin",
   headers: {
     "Content-Type": "application/json",
   },
@@ -52,54 +52,60 @@ const handleError = (error) => {
   };
 };
 
-export const ShiftAPI = {
-  /**
-   * 근무기록조회 //날짜로
-   * @param {string} memberId
-   * @param {string} startDate
-   * @param {string} endDate
-   * @returns {Promise <{shifts: {id: number, checkinTime: string, checkoutTime: stirng}[] }>}
-   */
-  Shifts: async (memberId, startDate, endDate) => {
+export const AdminMemberAPI = {
+  // 직원 목록 조회
+  ViewList: async (memberId) => {
     try {
-      const response = await instance.get("/", {
-        params: { memberId, startDate, endDate },
+      const response = await instance.get(`/member/${memberId}`, {
+        params: {
+          memberId,
+        },
       });
       return response.data;
     } catch (error) {
       return handleError(error);
     }
   },
-
-  /**
-   * 출근 기록
-   * @param {string} memberId
-   * @param {number} latitude
-   * @param {number} longitude
-   * @returns {Promise <any>}
-   */
-  CheckIn: async (memberId, latitude, longitude) => {
+  // 직원 정보 조회
+  View: async (memberId) => {
     try {
-      const response = await instance.post("/check-in", {
-        memberId,
-        checkinTime: new Date().toISOString(),
-        latitude,
-        longitude,
+      const response = await instance.get(`/member/${memberId}`, {
+        params: {
+          memberId,
+        },
       });
       return response.data;
     } catch (error) {
       return handleError(error);
     }
   },
-
-  /**
-   * 퇴근 기록
-   * @param {string} memberId
-   * @returns {Promise <any>}
-   */
-  Checkout: async (memberId) => {
+  // 직원 정보 수정
+  Edit: async () => {
     try {
-      const response = await instance.patch("/check-out", { memberId });
+      const response = await instance.get("/member");
+
+      return response.data;
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+  // 직원 정보 삭제
+  Delete: async (memberId) => {
+    try {
+      const response = await instance.delete(`/member/${memberId}`, {
+        params: {
+          memberId,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+  // 직원 정보 검색
+  Search: async (name) => {
+    try {
+      const response = await instance.get("/member/search", { name });
       return response.data;
     } catch (error) {
       return handleError(error);
