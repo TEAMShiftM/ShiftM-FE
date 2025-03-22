@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shiftm
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shiftm
+  template:
+    metadata:
+      labels:
+        app: shiftm
+    spec:
+      containers:
+        - name: shiftm
+          image: docker.io/library/shiftm:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
