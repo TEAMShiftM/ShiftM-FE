@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import RadioButton from "../../components/GenderRadio";
+import { AdminMemberAPI } from "../../api/admin/member";
 
 const Container = styled.div`
   display: flex;
@@ -39,10 +40,10 @@ const Input = styled.input`
   height: 60px;
   border: 1px solid #0075ff;
   border-radius: 10px;
-  background-color: #F2F2F7;
+  background-color: #f2f2f7;
   font-size: 24px;
   padding-left: 20px;
-  color: #0075ff;
+  color: #000000;
 `;
 
 const Input2 = styled.input`
@@ -51,12 +52,11 @@ const Input2 = styled.input`
   height: 60px;
   border: 1px solid #0075ff;
   border-radius: 10px;
-  background-color: #F2F2F7;
+  background-color: #f2f2f7;
   font-size: 24px;
   padding-left: 20px;
-  color:rgb(0, 0, 0);
+  color: rgb(0, 0, 0);
 `;
-
 
 const Button2 = styled.button`
   width: 494px;
@@ -75,7 +75,6 @@ const RadioGroup = styled.div`
   gap: 74px;
 `;
 
-
 const Button3 = styled.button`
   width: 494px;
   height: 60px;
@@ -89,34 +88,91 @@ const Button3 = styled.button`
 `;
 
 const EmployeeProfile = () => {
-  const [profile, setProfile] = useState({
+  // Default profile if API fails
+  const defaultProfile = {
     username: "shiftm",
     email: "shiftm@gmail.com",
     name: "홍길동",
     birthdate: "2000-01-01",
     gender: "male",
     date: "",
-  });
+  };
 
+  const [profile, setProfile] = useState(defaultProfile);
+  const [apiConnected, setApiConnected] = useState(false);
   const [showEmailChange, setShowEmailChange] = useState(true);
+
+  useEffect(() => {
+    // Fetch the current profile data on mount
+    const fetchProfile = async () => {
+      try {
+        const response = await AdminMemberAPI.Edit();
+        if (response) {
+          setProfile(response);
+          setApiConnected(true);
+        }
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+        setApiConnected(false);
+        // Keep default profile if API fails
+        setProfile(defaultProfile);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   const handleChange = (e) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
   };
 
-  const [gender, setGender] = useState("")
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await AdminMemberAPI.Edit(profile);
+      alert("프로필이 수정되었습니다.");
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+    }
+  };
+
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm("정말로 삭제하시겠습니까?");
+    if (confirmDelete) {
+      try {
+        await AdminMemberAPI.Delete(profile.username); // Assuming username is the memberId
+        alert("프로필이 삭제되었습니다.");
+      } catch (error) {
+        console.error("Failed to delete profile:", error);
+      }
+    }
+  };
+
+  // Display title based on API connection status
+  const profileTitle = apiConnected
+    ? `${profile.name}의 프로필`
+    : "김사원의 프로필";
 
   return (
     <Container>
       <Card>
-        <Title>김사원의 프로필</Title>
-        <form>
-          <Label>아이디 <span style={{ color: "#0075FFB2" }}>*</span></Label>
-          <Input type="text" name="username" value={profile.username} readOnly/>
-          {showEmailChange ? (
+        <Title>{profileTitle}</Title>
+        <form onSubmit={handleSubmit}>
+          <Label>
+            아이디 <span style={{ color: "#0075FFB2" }}>*</span>
+          </Label>
+          <Input
+            type="text"
+            name="username"
+            value={profile.username}
+            readOnly
+          />
+
+          {showEmailChange && (
             <>
-            <Label>이메일 <span style={{ color: "#0075FFB2" }}>*</span></Label>
-            <Input
+              <Label>
+                이메일 <span style={{ color: "#0075FFB2" }}>*</span>
+              </Label>
+              <Input
                 type="email"
                 name="email"
                 value={profile.email}
@@ -124,12 +180,11 @@ const EmployeeProfile = () => {
                 readOnly
               />
             </>
-          ) : 
-            <>
-            </>
-          }
+          )}
 
-          <Label>이름 <span style={{ color: "#0075FFB2" }}>*</span></Label>
+          <Label>
+            이름 <span style={{ color: "#0075FFB2" }}>*</span>
+          </Label>
           <Input2
             type="text"
             name="name"
@@ -137,7 +192,9 @@ const EmployeeProfile = () => {
             onChange={handleChange}
           />
 
-          <Label>생년월일 <span style={{ color: "#0075FFB2" }}>*</span></Label>
+          <Label>
+            생년월일 <span style={{ color: "#0075FFB2" }}>*</span>
+          </Label>
           <Input2
             type="date"
             name="birthdate"
@@ -145,27 +202,42 @@ const EmployeeProfile = () => {
             onChange={handleChange}
           />
 
-          <Label>성별 <span style={{ color: "#0075FFB2" }}>*</span></Label>
+          <Label>
+            성별 <span style={{ color: "#0075FFB2" }}>*</span>
+          </Label>
           <RadioGroup>
-            <RadioButton id="male" name="gender" value="M" label="남성"
+            <RadioButton
+              id="male"
+              name="gender"
+              value="M"
+              label="남성"
               checked={profile.gender === "male" || profile.gender === "M"}
-              onChange={() => setProfile({ ...profile, gender: "M" })} 
+              onChange={() => setProfile({ ...profile, gender: "M" })}
             />
-            <RadioButton id="female" name="gender" value="F" label="여성"
+            <RadioButton
+              id="female"
+              name="gender"
+              value="F"
+              label="여성"
               checked={profile.gender === "female" || profile.gender === "F"}
-              onChange={() => setProfile({ ...profile, gender: "F" })} 
+              onChange={() => setProfile({ ...profile, gender: "F" })}
             />
           </RadioGroup>
-          <Label>입사 날짜 <span style={{ color: "#0075FFB2" }}>*</span></Label>
+
+          <Label>
+            입사 날짜 <span style={{ color: "#0075FFB2" }}>*</span>
+          </Label>
           <Input2
             type="date"
-            name="employeedate"
+            name="date"
             value={profile.date}
             onChange={handleChange}
           />
-          <Button3>삭제하기</Button3>
 
-          <Button2>완료</Button2>
+          <Button3 type="button" onClick={handleDelete}>
+            삭제하기
+          </Button3>
+          <Button2 type="submit">완료</Button2>
         </form>
       </Card>
     </Container>
